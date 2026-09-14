@@ -92,14 +92,14 @@ export default function Page() {
         </nav>
         <div className="sidebar-bottom">
           <div className="sync-card"><span className="sync-dot" /><div><strong>Todo sincronizado</strong><span>Última actualización hace 2 min</span></div></div>
-          <div className="teacher-card"><Avatar initials="JP" color="green" /><div><strong>Julieta Pérez</strong><span>Profesora</span></div><MoreHorizontal /></div>
+          <div className="teacher-card"><Avatar initials="JQ" color="green" /><div><strong>Joaquín</strong><span>Profesor</span></div><MoreHorizontal /></div>
         </div>
       </aside>
       <main className="main-content">
         <header className="topbar">
           <button className="mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Abrir menú"><Menu /></button>
           <div className="breadcrumb"><span>Inicio</span><span>/</span><strong>{active}</strong></div>
-          <div className="topbar-actions"><button className="icon-button"><Search /></button><button className="icon-button notification"><Bell /><i /></button><div className="top-avatar">JP</div></div>
+          <div className="topbar-actions"><button className="icon-button"><Search /></button><button className="icon-button notification"><Bell /><i /></button><div className="top-avatar">JQ</div></div>
         </header>
         <div className="page-wrap">
           {active === 'Asistencia' ? (
@@ -113,7 +113,7 @@ export default function Page() {
 
 function DashboardView({ onNavigate, attendancePercent, presentCount }: { onNavigate: (value: string) => void; attendancePercent: number; presentCount: number }) {
   return <>
-    <section className="welcome-row"><div><p className="eyebrow">LUNES, 14 DE SEPTIEMBRE DE 2026</p><h1>Buenos días, Julieta <span>✦</span></h1><p className="subtitle">Aquí tienes un resumen de lo que ocurre en tus cursos.</p></div><button className="primary-button" onClick={() => onNavigate('Asistencia')}><Plus /> Tomar asistencia</button></section>
+    <section className="welcome-row"><div><p className="eyebrow">LUNES, 14 DE SEPTIEMBRE DE 2026</p><h1>Buenos días, Joaquín <span>✦</span></h1><p className="subtitle">Aquí tienes un resumen de lo que ocurre en tus cursos.</p></div><button className="primary-button" onClick={() => onNavigate('Asistencia')}><Plus /> Tomar asistencia</button></section>
     <section className="stats-grid">
       <StatCard icon={<Users />} label="Estudiantes" value="32" detail="en 2 cursos" tone="blue" />
       <StatCard icon={<ClipboardCheck />} label="Asistencia hoy" value={`${attendancePercent}%`} detail={`${presentCount} de 7 presentes`} tone="green" />
