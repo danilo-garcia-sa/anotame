@@ -70,12 +70,12 @@ export default function Page() {
       <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
         <div className="brand-row">
           <div className="brand-mark"><span /></div>
-          <span className="brand-name">anotame</span>
+          <span className="brand-name">Anotame UBA</span>
           <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú"><X /></button>
         </div>
         <div className="workspace-switcher">
           <div className="workspace-icon"><GraduationCap /></div>
-          <div><strong>Instituto San Martín</strong><span>Panel docente</span></div>
+          <div><strong>Escuela tecnica de la uba</strong><span>Panel docente</span></div>
           <ChevronDown />
         </div>
         <nav className="main-nav" aria-label="Navegación principal">

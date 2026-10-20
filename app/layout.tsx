@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'anotame · Panel docente',
+  title: 'Anotame UBA · Panel docente',
   description: 'Gestiona asistencia, calificaciones y cursos desde un solo lugar.',
   generator: 'v0.app',
   icons: {
