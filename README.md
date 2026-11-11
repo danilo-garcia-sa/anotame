@@ -32,3 +32,10 @@ Los datos salen de la API (`lib/api.ts`). Si el backend no responde, aparece un 
 - El docente se elige abajo a la izquierda (hasta que haya inicio de sesión).
 - Fotos de alumnos: se usa `fotoUrl` del alumno; si no tiene, se muestran las iniciales. Las imágenes van en `public/fotos/`.
 - Requiere la rama `calendario` del backend.
+
+## Calificaciones y Excel
+
+- **Instancias:** 1er bimestre / 1er cuatrimestre / 2do bimestre / 2do cuatrimestre. Bimestre = Aprobado, En proceso o Desaprobado; cuatrimestre = nota entera de 1 a 10 (verde con 7 o más).
+- **Sistema de puntos** (el de Joaquín): se activa con el selector "Puntos". Se cargan TPs con su puntaje máximo, la app suma y compara con la meta (6 pts × clases, editable).
+- **Exportar a Excel:** botón en Asistencia y en Calificaciones; genera un .xlsx con las dos hojas y los totales como fórmulas.
+- Requiere la rama `calificaciones` del backend.

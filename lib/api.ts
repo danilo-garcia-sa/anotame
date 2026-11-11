@@ -70,6 +70,8 @@ export type Cursada = {
   diasDeClase: DiaSemana[]
   fechaInicio: string
   fechaFin: string
+  sistema: 'NOTAS' | 'PUNTOS'
+  puntosAprobar: number | null
 }
 
 export type DiaDeClase = { fecha: string; numero: number; sinActividad: boolean; motivo: string | null }
@@ -115,3 +117,40 @@ export const marcarDiaSinActividad = (cursadaId: number, fecha: string, sinActiv
     method: 'PUT',
     body: JSON.stringify({ sinActividad, motivo: motivo ?? null }),
   })
+
+// ---------- Calificaciones ----------
+
+export type Instancia = 'BIMESTRE_1' | 'CUATRIMESTRE_1' | 'BIMESTRE_2' | 'CUATRIMESTRE_2'
+export type EstadoBimestre = 'APROBADO' | 'EN_PROCESO' | 'DESAPROBADO'
+export type EvaluacionPuntos = { id: number; titulo: string; descripcion: string | null; puntosMaximos: number | null }
+export type NotaPuntos = { estudianteId: number; evaluacionId: number; valor: number }
+export type ResultadoInstancia = { estudianteId: number; instancia: Instancia; nota: number | null; estado: EstadoBimestre | null }
+export type Calificaciones = {
+  cursada: Cursada
+  puntosPorClase: number
+  clasesContadas: number
+  metaPuntos: number
+  estudiantes: Estudiante[]
+  evaluaciones: EvaluacionPuntos[]
+  notas: NotaPuntos[]
+  instancias: ResultadoInstancia[]
+}
+
+export const getCalificaciones = (cursadaId: number) => request<Calificaciones>(`/api/cursadas/${cursadaId}/calificaciones`)
+
+export const configurarCursada = (cursadaId: number, sistema: 'NOTAS' | 'PUNTOS', puntosAprobar: number | null) =>
+  request<void>(`/api/cursadas/${cursadaId}/configuracion`, { method: 'PUT', body: JSON.stringify({ sistema, puntosAprobar }) })
+
+export const crearEvaluacion = (cursadaId: number, e: { titulo: string; puntosMaximos: number | null }) =>
+  request<EvaluacionPuntos>(`/api/cursadas/${cursadaId}/evaluaciones`, { method: 'POST', body: JSON.stringify(e) })
+
+export const borrarEvaluacion = (cursadaId: number, evaluacionId: number) =>
+  request<void>(`/api/cursadas/${cursadaId}/evaluaciones/${evaluacionId}`, { method: 'DELETE' })
+
+export const guardarNotaPuntos = (cursadaId: number, n: { estudianteId: number; evaluacionId: number; valor: number | null }) =>
+  request<void>(`/api/cursadas/${cursadaId}/notas`, { method: 'PUT', body: JSON.stringify(n) })
+
+export const guardarInstancia = (
+  cursadaId: number,
+  i: { estudianteId: number; instancia: Instancia; nota?: number | null; estado?: EstadoBimestre | null },
+) => request<void>(`/api/cursadas/${cursadaId}/instancias`, { method: 'PUT', body: JSON.stringify(i) })

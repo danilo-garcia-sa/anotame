@@ -3,17 +3,19 @@
 import { useEffect, useState } from 'react'
 import {
   Bell, BookOpen, CalendarDays, ChevronDown, ClipboardCheck, FileSpreadsheet, GraduationCap,
-  LayoutDashboard, Menu, NotebookPen, Plus, Search, Settings, Upload, Users, X,
+  Download, LayoutDashboard, Menu, NotebookPen, Plus, Search, Settings, Users, X,
 } from 'lucide-react'
 import {
   API_URL, borrarCursada, crearCursada, editarCursada, getCursadas, getCursos, getDocentes,
-  getEvaluaciones, getNotas, getTotalEstudiantes,
-  type Cursada, type Curso, type Docente, type Evaluacion, type NuevaCursada, type Nota,
+  getTotalEstudiantes,
+  type Cursada, type Curso, type Docente, type NuevaCursada,
 } from '@/lib/api'
+import { exportarAExcel } from '@/lib/exportar'
 import { fechaCorta, fechaLarga, hoyISO, nombresDias } from '@/lib/fechas'
 import { Avatar, colorDe, iniciales } from '@/components/anotame/avatar'
 import { PlanillaGrid } from '@/components/anotame/planilla'
 import { MisCursos } from '@/components/anotame/mis-cursos'
+import { Calificaciones } from '@/components/anotame/calificaciones'
 import { usePlanilla, clave } from '@/components/anotame/use-planilla'
 
 const LINEAS = ['blue', 'green', 'orange']
@@ -43,8 +45,6 @@ export default function Page() {
   const [docenteId, setDocenteId] = useState<number | null>(null)
   const [cursadas, setCursadas] = useState<Cursada[]>([])
   const [cursadaId, setCursadaId] = useState<number | null>(null)
-  const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([])
-  const [notas, setNotas] = useState<Nota[]>([])
 
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -94,17 +94,6 @@ export default function Page() {
     return () => { cancelado = true }
   }, [docenteId, intento])
 
-  // 3) Evaluaciones y notas del curso de la cursada elegida
-  const cursoDeCursadaId = cursadas.find((c) => c.id === cursadaId)?.curso.id ?? null
-  useEffect(() => {
-    if (cursoDeCursadaId === null) { setEvaluaciones([]); setNotas([]); return }
-    let cancelado = false
-    Promise.all([getEvaluaciones(cursoDeCursadaId), getNotas(cursoDeCursadaId)])
-      .then(([ev, ns]) => { if (!cancelado) { setEvaluaciones(ev); setNotas(ns) } })
-      .catch((e) => { if (!cancelado) setError(mensajeDe(e)) })
-    return () => { cancelado = true }
-  }, [cursoDeCursadaId, intento])
-
   const cursada = cursadas.find((c) => c.id === cursadaId) ?? null
   const docente = docentes.find((d) => d.id === docenteId) ?? null
   const errorMostrado = error ?? pl.error
@@ -139,6 +128,22 @@ export default function Page() {
       setError(mensajeDe(e))
     }
   }
+
+  const [exportando, setExportando] = useState(false)
+  const exportar = async () => {
+    if (!pl.planilla) return
+    setExportando(true)
+    try {
+      await exportarAExcel(pl.planilla, pl.celdas)
+    } catch (e) {
+      setError(mensajeDe(e))
+    } finally {
+      setExportando(false)
+    }
+  }
+  const botonExportar = (
+    <button className="secondary-button" onClick={exportar} disabled={!pl.planilla || exportando}><Download /> {exportando ? 'Armando…' : 'Exportar a Excel'}</button>
+  )
 
   const abrirCursada = (id: number) => { setCursadaId(id); setActive('Asistencia') }
 
@@ -213,7 +218,7 @@ export default function Page() {
             docenteId !== null && <MisCursos docenteId={docenteId} cursos={cursos} cursadas={cursadas} onGuardar={guardarCursada} onBorrar={eliminarCursada} onAbrir={abrirCursada} />
           ) : active === 'Asistencia' ? (
             <>
-              <section className="welcome-row compact"><div><p className="eyebrow">{hoy ? fechaLarga(hoy) : ''}</p><h1>Planilla de asistencia</h1><p className="subtitle">Tocá una celda para marcar. Se guarda solo.</p></div></section>
+              <section className="welcome-row compact"><div><p className="eyebrow">{hoy ? fechaLarga(hoy) : ''}</p><h1>Planilla de asistencia</h1><p className="subtitle">Tocá una celda para marcar. Se guarda solo.</p></div>{botonExportar}</section>
               <CursadaSelector cursada={cursada} cursadas={cursadas} onCursada={setCursadaId} />
               <section className="panel planilla-panel">
                 {!cursada ? (
@@ -232,11 +237,11 @@ export default function Page() {
               </section>
             </>
           ) : active === 'Calificaciones' ? (
-            <GradesView cursada={cursada} cursadas={cursadas} onCursada={setCursadaId} estudiantes={estudiantes} evaluaciones={evaluaciones} notas={notas} />
+            <Calificaciones cursadaId={cursadaId} intento={intento} acciones={botonExportar} selector={<CursadaSelector cursada={cursada} cursadas={cursadas} onCursada={setCursadaId} />} />
           ) : (
             <DashboardView
               saludo={saludo} hoy={hoy} docente={docente} cursada={cursada} cursadas={cursadas} totalEstudiantes={totalEstudiantes}
-              estudiantes={estudiantes} celdas={pl.celdas} ultimaFecha={ultima?.fecha ?? null} evaluaciones={evaluaciones.length}
+              estudiantes={estudiantes} celdas={pl.celdas} ultimaFecha={ultima?.fecha ?? null} clasesDadas={pl.diasTomables.length} clasesTotales={pl.planilla?.dias.filter((d) => !d.sinActividad).length ?? 0}
               presentes={presentes} ausentes={ausentes} tardes={tardes} porcentaje={porcentaje}
               onNavigate={setActive} onCursada={setCursadaId}
             />
@@ -265,7 +270,7 @@ function CursadaSelector({ cursada, cursadas, onCursada }: { cursada: Cursada | 
 function DashboardView(p: {
   saludo: string; hoy: string; docente: Docente | null; cursada: Cursada | null; cursadas: Cursada[]
   totalEstudiantes: number | null; estudiantes: { id: number; nombre: string; apellido: string; fotoUrl: string | null }[]
-  celdas: Record<string, { letra: 'P' | 'A' | 'T' }>; ultimaFecha: string | null; evaluaciones: number
+  celdas: Record<string, { letra: 'P' | 'A' | 'T' }>; ultimaFecha: string | null; clasesDadas: number; clasesTotales: number
   presentes: number; ausentes: number; tardes: number; porcentaje: number | null
   onNavigate: (v: string) => void; onCursada: (id: number) => void
 }) {
@@ -277,7 +282,7 @@ function DashboardView(p: {
       <StatCard icon={<Users />} label="Estudiantes" value={p.totalEstudiantes === null ? '—' : String(p.totalEstudiantes)} detail="en el sistema" tone="blue" />
       <StatCard icon={<ClipboardCheck />} label={titulo} value={texto} detail={`${p.presentes} de ${p.presentes + p.ausentes + p.tardes} registrados`} tone="green" />
       <StatCard icon={<BookOpen />} label="Mis cursadas" value={String(p.cursadas.length)} detail={p.cursadas.map((c) => c.curso.nombre).join(', ') || '—'} tone="purple" />
-      <StatCard icon={<NotebookPen />} label="Evaluaciones" value={String(p.evaluaciones)} detail={`en ${p.cursada?.curso.nombre ?? '—'}`} tone="orange" />
+      <StatCard icon={<NotebookPen />} label="Clases dadas" value={String(p.clasesDadas)} detail={`de ${p.clasesTotales} con actividad`} tone="orange" />
     </section>
     <div className="content-grid">
       <section className="panel attendance-panel">
@@ -314,36 +319,4 @@ function StatCard({ icon, label, value, detail, tone }: { icon: React.ReactNode;
 function StatusBadge({ letra }: { letra: 'P' | 'A' | 'T' | null }) {
   if (letra === null) return <span className="status-badge status-none">Sin registrar</span>
   return <span className={`status-badge status-${letra.toLowerCase()}`}>{letra === 'P' ? 'Presente' : letra === 'A' ? 'Ausente' : 'Tarde'}</span>
-}
-
-function GradesView(p: {
-  cursada: Cursada | null; cursadas: Cursada[]; onCursada: (id: number) => void
-  estudiantes: { id: number; nombre: string; apellido: string; fotoUrl: string | null }[]; evaluaciones: Evaluacion[]; notas: Nota[]
-}) {
-  const evaluaciones = [...p.evaluaciones].sort((a, b) => a.id - b.id)
-  const valores = new Map<string, number>()
-  for (const n of p.notas) valores.set(`${n.estudiante.id}:${n.evaluacion.id}`, n.valor)
-  const columnas = { gridTemplateColumns: `1.6fr repeat(${evaluaciones.length + 1}, 1fr)` }
-  return <>
-    <section className="welcome-row compact"><div><p className="eyebrow">EVALUACIONES · {(p.cursada?.curso.nombre ?? '').toUpperCase()}</p><h1>Calificaciones</h1><p className="subtitle">Revisa el progreso de tus estudiantes.</p></div><button className="secondary-button"><Upload /> Importar planilla</button></section>
-    <CursadaSelector cursada={p.cursada} cursadas={p.cursadas} onCursada={p.onCursada} />
-    <section className="panel grades-panel">
-      <div className="panel-heading"><div><h2>Planilla de notas</h2><p>{p.cursada ? `${p.cursada.curso.nombre} · ${p.cursada.curso.anioLectivo}` : '—'}</p></div></div>
-      <div className="grades-table">
-        <div className="grades-head" style={columnas}><span>Estudiante</span>{evaluaciones.map((ev) => <span key={ev.id}>{ev.titulo}</span>)}<span>Promedio</span></div>
-        {p.estudiantes.length === 0 && <p className="empty-state">Este curso todavía no tiene alumnos inscriptos.</p>}
-        {p.estudiantes.length > 0 && evaluaciones.length === 0 && <p className="empty-state">Este curso todavía no tiene evaluaciones.</p>}
-        {p.estudiantes.map((e, i) => {
-          const cargadas = evaluaciones.map((ev) => valores.get(`${e.id}:${ev.id}`))
-          const numeros = cargadas.filter((v): v is number => v !== undefined)
-          const promedio = numeros.length > 0 ? (numeros.reduce((a, b) => a + b, 0) / numeros.length).toFixed(1) : '—'
-          return <div className="grades-row" style={columnas} key={e.id}>
-            <div className="student-cell"><Avatar initials={iniciales(e.nombre, e.apellido)} color={colorDe(i)} fotoUrl={e.fotoUrl} /><strong>{e.nombre} {e.apellido}</strong></div>
-            {cargadas.map((v, j) => <span key={evaluaciones[j].id}>{v === undefined ? '—' : v.toFixed(1)}</span>)}
-            <strong className="average-grade">{promedio}</strong>
-          </div>
-        })}
-      </div>
-    </section>
-  </>
 }
