@@ -24,3 +24,11 @@ Si el backend está en otra dirección, copiá `.env.example` como `.env.local` 
 - **Calificaciones**: planilla de solo lectura con las evaluaciones del curso y el promedio de cada alumno.
 
 Los datos salen de la API (`lib/api.ts`). Si el backend no responde, aparece un aviso con el botón "Reintentar".
+
+## Planilla de asistencia
+
+- **Mis cursos**: cada docente elige curso, días de la semana y período (año o cuatrimestre) y el backend genera el calendario.
+- **Asistencia**: planilla alumnos × fechas. Click en una celda: P → A → T → vacía (se guarda al instante). El botón ✓✓ bajo cada fecha marca a todos presentes. Tocar el número de una fecha la marca como "SA" (sin actividad).
+- El docente se elige abajo a la izquierda (hasta que haya inicio de sesión).
+- Fotos de alumnos: se usa `fotoUrl` del alumno; si no tiene, se muestran las iniciales. Las imágenes van en `public/fotos/`.
+- Requiere la rama `calendario` del backend.
