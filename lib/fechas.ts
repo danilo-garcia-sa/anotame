@@ -21,12 +21,11 @@ export const mesCorto = (iso: string) => aFecha(iso).toLocaleDateString('es-AR',
 export const fechaCorta = (iso: string) => aFecha(iso).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
 
 export const DIAS_SEMANA: { valor: DiaSemana; corto: string; largo: string }[] = [
-  { valor: 'MONDAY', corto: 'L', largo: 'Lunes' },
-  { valor: 'TUESDAY', corto: 'M', largo: 'Martes' },
-  { valor: 'WEDNESDAY', corto: 'X', largo: 'Miércoles' },
-  { valor: 'THURSDAY', corto: 'J', largo: 'Jueves' },
-  { valor: 'FRIDAY', corto: 'V', largo: 'Viernes' },
-  { valor: 'SATURDAY', corto: 'S', largo: 'Sábado' },
+  { valor: 'MONDAY', corto: 'Lun', largo: 'Lunes' },
+  { valor: 'TUESDAY', corto: 'Mar', largo: 'Martes' },
+  { valor: 'WEDNESDAY', corto: 'Mié', largo: 'Miércoles' },
+  { valor: 'THURSDAY', corto: 'Jue', largo: 'Jueves' },
+  { valor: 'FRIDAY', corto: 'Vie', largo: 'Viernes' },
 ]
 
 export const nombresDias = (dias: DiaSemana[]) =>

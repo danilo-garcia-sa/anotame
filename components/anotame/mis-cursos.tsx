@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CalendarPlus, Pencil, Trash2 } from 'lucide-react'
+import { CursosYAlumnos } from './cursos-alumnos'
 import type { Curso, Cursada, DiaSemana, NuevaCursada } from '@/lib/api'
 import { DIAS_SEMANA, fechaCorta, nombresDias, periodos } from '@/lib/fechas'
 
@@ -12,9 +13,11 @@ type Props = {
   onGuardar: (id: number | null, datos: NuevaCursada) => Promise<void>
   onBorrar: (id: number) => Promise<void>
   onAbrir: (id: number) => void
+  onCursosCambiaron: () => void
+  onError: (mensaje: string | null) => void
 }
 
-export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, onAbrir }: Props) {
+export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, onAbrir, onCursosCambiaron, onError }: Props) {
   const [editando, setEditando] = useState<number | null>(null)
   const [cursoId, setCursoId] = useState<number | ''>('')
   const [dias, setDias] = useState<DiaSemana[]>([])
@@ -96,7 +99,7 @@ export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, on
       {cursadas.map((c) => (
         <div className="cursada-item" key={c.id}>
           <button className="cursada-abrir" onClick={() => onAbrir(c.id)}>
-            <b>{c.curso.nombre}</b>
+            <b>{c.curso.nombre} · {c.curso.anioLectivo}</b>
             <small>{nombresDias(c.diasDeClase)} · {fechaCorta(c.fechaInicio)} → {fechaCorta(c.fechaFin)}</small>
           </button>
           <button className="icon-button" onClick={() => empezarEdicion(c)} aria-label={`Editar ${c.curso.nombre}`}><Pencil /></button>
@@ -104,5 +107,7 @@ export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, on
         </div>
       ))}
     </section>
+
+    <CursosYAlumnos cursos={cursos} onCursosCambiaron={onCursosCambiaron} onError={onError} />
   </>
 }
