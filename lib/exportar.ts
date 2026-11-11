@@ -134,7 +134,7 @@ export async function exportarAExcel(planilla: Planilla, celdas: Celdas) {
       celTotal.font = { bold: true }
       celTotal.alignment = { horizontal: 'center' }
       const res = hojaC.getCell(fila, 3 + ne)
-      res.value = { formula: `IF(${col(2 + ne)}${fila}>=${calif.metaPuntos},"Aprobado","Faltan "&(${calif.metaPuntos}-${col(2 + ne)}${fila}))`, result: total >= calif.metaPuntos ? 'Aprobado' : `Faltan ${calif.metaPuntos - total}` }
+      res.value = { formula: `IF(${col(2 + ne)}${fila}>=${calif.metaPuntos},"Aprobado","No aprobado")`, result: total >= calif.metaPuntos ? 'Aprobado' : 'No aprobado' }
       res.alignment = { horizontal: 'center' }
     })
     hojaC.getColumn(2 + ne).width = 12
