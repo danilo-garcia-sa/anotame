@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import {
-  BookOpen, CalendarDays, ChevronDown, ClipboardCheck, GraduationCap,
+  BookOpen, CalendarDays, ClipboardCheck, GraduationCap,
   Download, LayoutDashboard, Menu, NotebookPen, Plus, Users, X,
 } from 'lucide-react'
 import {
@@ -26,7 +26,8 @@ const navItems = [
   { label: 'Mis cursos', icon: BookOpen },
 ]
 const mensajeDe = (e: unknown) => (e instanceof Error ? e.message : 'Ocurrió un error inesperado')
-const nombreCursada = (c: Cursada) => `${c.curso.nombre} · ${nombresDias(c.diasDeClase)}`
+const nombreCursada = (c: Cursada) =>
+  `${c.curso.nombre}${c.curso.anioLectivo !== new Date().getFullYear() ? ` (${c.curso.anioLectivo})` : ''} · ${nombresDias(c.diasDeClase)}`
 
 function saludoSegunHora() {
   const hora = new Date().getHours()
@@ -160,13 +161,12 @@ export default function Page() {
       <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
         <div className="brand-row">
           <div className="brand-mark"><span /></div>
-          <span className="brand-name">anotame</span>
+          <span className="brand-name">ETEC Anótame</span>
           <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú"><X /></button>
         </div>
         <div className="workspace-switcher">
           <div className="workspace-icon"><GraduationCap /></div>
-          <div><strong>Instituto San Martín</strong><span>Panel docente</span></div>
-          <ChevronDown />
+          <div><strong>Escuela Técnica de la UBA</strong></div>
         </div>
         <nav className="main-nav" aria-label="Navegación principal">
           <p className="nav-label">Menú principal</p>
@@ -211,7 +211,7 @@ export default function Page() {
           {!errorMostrado && !cargando && docentes.length === 0 ? (
             <div className="panel empty-state">Todavía no hay docentes cargados en el backend.</div>
           ) : active === 'Mis cursos' ? (
-            docenteId !== null && <MisCursos docenteId={docenteId} cursos={cursos} cursadas={cursadas} onGuardar={guardarCursada} onBorrar={eliminarCursada} onAbrir={abrirCursada} />
+            docenteId !== null && <MisCursos docenteId={docenteId} cursos={cursos} cursadas={cursadas} onGuardar={guardarCursada} onBorrar={eliminarCursada} onAbrir={abrirCursada} onCursosCambiaron={() => setIntento((n) => n + 1)} onError={setError} />
           ) : active === 'Asistencia' ? (
             <>
               <section className="welcome-row compact"><div><p className="eyebrow">{hoy ? fechaLarga(hoy) : ''}</p><h1>Planilla de asistencia</h1><p className="subtitle">Tocá una celda para marcar. Se guarda solo.</p></div>{botonExportar}</section>

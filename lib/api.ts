@@ -154,3 +154,14 @@ export const guardarInstancia = (
   cursadaId: number,
   i: { estudianteId: number; instancia: Instancia; nota?: number | null; estado?: EstadoBimestre | null },
 ) => request<void>(`/api/cursadas/${cursadaId}/instancias`, { method: 'PUT', body: JSON.stringify(i) })
+
+// ---------- Cursos y alumnos ----------
+
+export const crearCurso = (nombre: string, anioLectivo: number) =>
+  request<Curso>('/api/cursos', { method: 'POST', body: JSON.stringify({ nombre, anioLectivo }) })
+
+export const crearEstudiante = (e: { nombre: string; apellido: string; dni: string }) =>
+  request<Estudiante>('/api/estudiantes', { method: 'POST', body: JSON.stringify(e) })
+
+export const inscribirEnCurso = (cursoId: number, estudianteId: number) =>
+  request<Estudiante>(`/api/cursos/${cursoId}/estudiantes/${estudianteId}`, { method: 'POST' })
