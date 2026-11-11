@@ -57,27 +57,61 @@ export const getEvaluaciones = (cursoId: number) =>
 
 export const getNotas = (cursoId: number) => request<Nota[]>(`/api/notas?cursoId=${cursoId}`)
 
-export const getAsistencias = (cursoId: number, fecha: string) =>
-  request<Asistencia[]>(`/api/asistencias?cursoId=${cursoId}&fecha=${fecha}`)
+export const getDocentes = () => request<Docente[]>('/api/docentes')
 
-export type NuevaAsistencia = {
-  id?: number // si ya existe un registro de ese día, se actualiza
-  fecha: string // AAAA-MM-DD
-  estado: EstadoAsistencia
-  justificacion: string | null
-  estudianteId: number
+// ---------- Cursadas y planilla ----------
+
+export type DiaSemana = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+
+export type Cursada = {
+  id: number
+  docente: { id: number; nombre: string; apellido: string }
+  curso: { id: number; nombre: string; anioLectivo: number }
+  diasDeClase: DiaSemana[]
+  fechaInicio: string
+  fechaFin: string
+}
+
+export type DiaDeClase = { fecha: string; numero: number; sinActividad: boolean; motivo: string | null }
+export type CeldaAsistencia = { estudianteId: number; fecha: string; estado: EstadoAsistencia; justificacion: string | null }
+export type Planilla = {
+  cursada: Cursada
+  dias: DiaDeClase[]
+  estudiantes: Estudiante[]
+  asistencias: CeldaAsistencia[]
+}
+
+export type NuevaCursada = {
+  docenteId: number
   cursoId: number
+  diasDeClase: DiaSemana[]
+  fechaInicio: string
+  fechaFin: string
 }
 
-export function guardarAsistencia(a: NuevaAsistencia) {
-  const cuerpo = JSON.stringify({
-    fecha: a.fecha,
-    estado: a.estado,
-    justificacion: a.justificacion,
-    estudiante: { id: a.estudianteId },
-    curso: { id: a.cursoId },
+export const getCursadas = (docenteId: number) => request<Cursada[]>(`/api/cursadas?docenteId=${docenteId}`)
+
+export const crearCursada = (c: NuevaCursada) =>
+  request<Cursada>('/api/cursadas', { method: 'POST', body: JSON.stringify(c) })
+
+export const editarCursada = (id: number, c: NuevaCursada) =>
+  request<Cursada>(`/api/cursadas/${id}`, { method: 'PUT', body: JSON.stringify(c) })
+
+export const borrarCursada = (id: number) => request<void>(`/api/cursadas/${id}`, { method: 'DELETE' })
+
+export const getPlanilla = (cursadaId: number) => request<Planilla>(`/api/cursadas/${cursadaId}/planilla`)
+
+/** Una celda de la planilla. estado = null borra el registro. Se llama en cada click. */
+export const guardarCelda = (
+  cursadaId: number,
+  c: { estudianteId: number; fecha: string; estado: EstadoAsistencia | null; justificacion?: string | null },
+) => request<void>(`/api/cursadas/${cursadaId}/asistencias`, { method: 'PUT', body: JSON.stringify(c) })
+
+export const marcarTodos = (cursadaId: number, fecha: string, estado: EstadoAsistencia = 'PRESENTE') =>
+  request<void>(`/api/cursadas/${cursadaId}/asistencias/lote`, { method: 'POST', body: JSON.stringify({ fecha, estado }) })
+
+export const marcarDiaSinActividad = (cursadaId: number, fecha: string, sinActividad: boolean, motivo?: string) =>
+  request<DiaDeClase>(`/api/cursadas/${cursadaId}/dias/${fecha}`, {
+    method: 'PUT',
+    body: JSON.stringify({ sinActividad, motivo: motivo ?? null }),
   })
-  return a.id
-    ? request<Asistencia>(`/api/asistencias/${a.id}`, { method: 'PUT', body: cuerpo })
-    : request<Asistencia>('/api/asistencias', { method: 'POST', body: cuerpo })
-}
