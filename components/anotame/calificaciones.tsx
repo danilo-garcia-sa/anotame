@@ -167,8 +167,6 @@ function PuntosPanel(p: {
   const { datos } = p
   const [titulo, setTitulo] = useState('')
   const [puntos, setPuntos] = useState('25')
-  const automatica = datos.cursada.puntosAprobar === null
-  const calculada = datos.clasesContadas * datos.puntosPorClase
   const valores = new Map(datos.notas.map((n) => [`${n.estudianteId}:${n.evaluacionId}`, n.valor]))
   const posibles = datos.evaluaciones.reduce((a, ev) => a + (ev.puntosMaximos ?? 0), 0)
 
@@ -180,14 +178,12 @@ function PuntosPanel(p: {
   }
 
   return <section className="panel grades-panel">
-    <div className="panel-heading"><div><h2>Puntos por evaluación</h2><p>Cada clase aporta {datos.puntosPorClase} puntos a la meta: {datos.clasesContadas} clases × {datos.puntosPorClase} = {calculada}</p></div></div>
+    <div className="panel-heading"><div><h2>Puntos por evaluación</h2><p>Se aprueba al llegar a la meta de puntos; no hay “en proceso”.</p></div></div>
 
     <div className="meta-row">
       <label>Puntos para aprobar
         <NumeroInput valor={datos.metaPuntos} entero minimo={1} etiqueta="Puntos para aprobar" ancho onGuardar={(v) => p.onMeta(v)} onError={p.onError} />
       </label>
-      {!automatica && <button className="text-button" onClick={() => p.onMeta(null)}>Volver a automático ({calculada})</button>}
-      {automatica && <span className="meta-nota">automático</span>}
       <span className="meta-nota">TPs cargados suman {posibles} pts posibles</span>
     </div>
 
@@ -218,7 +214,7 @@ function PuntosPanel(p: {
                 </td>
               ))}
               <td className="total-pts"><b>{Number.isInteger(total) ? total : total.toFixed(1)}</b> / {datos.metaPuntos}</td>
-              <td><span className={`status-badge ${aprobado ? 'status-p' : 'status-a'}`}>{aprobado ? 'Aprobado' : `Faltan ${Number.isInteger(datos.metaPuntos - total) ? datos.metaPuntos - total : (datos.metaPuntos - total).toFixed(1)}`}</span></td>
+              <td><span title={aprobado ? undefined : `Faltan ${Number.isInteger(datos.metaPuntos - total) ? datos.metaPuntos - total : (datos.metaPuntos - total).toFixed(1)} puntos`} className={`status-badge ${aprobado ? 'status-p' : 'status-a'}`}>{aprobado ? 'Aprobado' : 'No aprobado'}</span></td>
             </tr>
           })}
         </tbody>

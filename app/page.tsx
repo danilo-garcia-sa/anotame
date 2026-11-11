@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Bell, BookOpen, CalendarDays, ChevronDown, ClipboardCheck, FileSpreadsheet, GraduationCap,
-  Download, LayoutDashboard, Menu, NotebookPen, Plus, Search, Settings, Users, X,
+  BookOpen, CalendarDays, ChevronDown, ClipboardCheck, GraduationCap,
+  Download, LayoutDashboard, Menu, NotebookPen, Plus, Users, X,
 } from 'lucide-react'
 import {
   API_URL, borrarCursada, crearCursada, editarCursada, getCursadas, getCursos, getDocentes,
@@ -175,10 +175,6 @@ export default function Page() {
               <Icon /> <span>{label}</span>
             </button>
           ))}
-          <p className="nav-label nav-label-spaced">Herramientas</p>
-          <button className="nav-item"><CalendarDays /><span>Calendario</span></button>
-          <button className="nav-item"><FileSpreadsheet /><span>Reportes</span></button>
-          <button className="nav-item"><Settings /><span>Configuración</span></button>
         </nav>
         <div className="sidebar-bottom">
           <div className="sync-card">
@@ -203,9 +199,9 @@ export default function Page() {
         <header className="topbar">
           <button className="mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Abrir menú"><Menu /></button>
           <div className="breadcrumb"><span>Inicio</span><span>/</span><strong>{active}</strong></div>
-          <div className="topbar-actions"><button className="icon-button"><Search /></button><button className="icon-button notification"><Bell /><i /></button><div className="top-avatar">{iniDocente}</div></div>
+          <div className="topbar-actions"><div className="top-avatar">{iniDocente}</div></div>
         </header>
-        <div className="page-wrap">
+        <div className={`page-wrap ${active === 'Asistencia' ? 'page-wide' : ''}`}>
           {errorMostrado && (
             <div className="notice" role="alert">
               <span>{errorMostrado}</span>

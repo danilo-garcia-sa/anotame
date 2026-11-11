@@ -155,7 +155,7 @@ export function PlanillaGrid(p: Props) {
         ) : (
           <p className="planilla-ayuda">
             Tocá una celda: <b className="l-p">P</b> presente → <b className="l-a">A</b> ausente → <b className="l-t">T</b> tarde → vacía.
-            Tocá el número de una fecha para marcarla “sin actividad”; el botón <CheckCheck className="icono-inline" /> bajo cada fecha marca a todos presentes. Todo se guarda solo.
+            Tocá el número de una fecha para marcarla “sin actividad” y usá el doble tilde de abajo para marcar a todos presentes. Todo se guarda solo.
           </p>
         )}
         <span className={`guardado-tag ${p.guardando ? 'guardando' : ''}`}>
