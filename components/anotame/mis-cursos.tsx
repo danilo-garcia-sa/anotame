@@ -44,6 +44,12 @@ export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, on
 
   const enviar = async () => {
     if (!valido) return
+    const original = editando !== null ? cursadas.find((c) => c.id === editando) : undefined
+    const cambioCalendario = original && (
+      original.fechaInicio !== inicio || original.fechaFin !== fin ||
+      [...original.diasDeClase].sort().join() !== [...dias].sort().join()
+    )
+    if (cambioCalendario && !window.confirm('Cambiaste los días o el período: las fechas que ya no corresponden se borran junto con su asistencia. ¿Seguir?')) return
     setEnviando(true)
     try {
       await onGuardar(editando, { docenteId, cursoId, diasDeClase: dias, fechaInicio: inicio, fechaFin: fin })
@@ -57,7 +63,7 @@ export function MisCursos({ docenteId, cursos, cursadas, onGuardar, onBorrar, on
     <section className="welcome-row compact"><div><p className="eyebrow">CURSADAS</p><h1>Mis cursos</h1><p className="subtitle">Elegí el curso, los días de la semana y el período: la app arma el calendario de clases.</p></div></section>
 
     <section className="panel cursada-form">
-      <div className="panel-heading"><div><h2>{editando ? 'Editar cursada' : 'Nueva cursada'}</h2><p>{editando ? 'Si cambiás días o fechas, el calendario se actualiza (las clases con asistencia cargada se conservan).' : 'Podés tener el mismo curso en más de un día.'}</p></div></div>
+      <div className="panel-heading"><div><h2>{editando ? 'Editar cursada' : 'Nueva cursada'}</h2><p>{editando ? 'Si cambiás días o fechas, el calendario se actualiza (las fechas que ya no corresponden se borran junto con su asistencia).' : 'Podés tener el mismo curso en más de un día.'}</p></div></div>
       <div className="form-grid">
         <label className="campo">
           <span>Curso</span>
