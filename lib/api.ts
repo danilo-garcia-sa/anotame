@@ -160,7 +160,7 @@ export const guardarInstancia = (
 export const crearCurso = (nombre: string, anioLectivo: number) =>
   request<Curso>('/api/cursos', { method: 'POST', body: JSON.stringify({ nombre, anioLectivo }) })
 
-export const crearEstudiante = (e: { nombre: string; apellido: string; dni: string }) =>
+export const crearEstudiante = (e: { nombre: string; apellido: string; dni: string; fotoUrl?: string | null }) =>
   request<Estudiante>('/api/estudiantes', { method: 'POST', body: JSON.stringify(e) })
 
 export const inscribirEnCurso = (cursoId: number, estudianteId: number) =>

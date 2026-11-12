@@ -128,6 +128,15 @@ button { font: inherit; cursor: pointer; }
 .brand-name { font-size:19px !important; white-space:nowrap; }
 .workspace-switcher strong { font-size:12px; }
 .chip { min-width:52px; padding:0 10px; }
-.alumnos-bloque { margin-top:22px; padding-top:18px; border-top:1px solid #edf0f4; }
 .alumnos-lista { margin-top:12px; max-height:260px; overflow:auto; }
 .alumnos-lista .mini-student small { color:#a0aab7; font-size:10px; }
+.campo-titulo { display:block; font-size:11px; color:#7d8999; margin-bottom:10px; }
+.curso-plegable { border:1px solid #e6ebf1; border-radius:10px; margin-bottom:10px; background:#fff; }
+.curso-cabecera { width:100%; display:flex; align-items:center; gap:12px; border:0; background:transparent; padding:13px 16px; text-align:left; }
+.curso-cabecera b { font-size:13px; } .curso-cabecera small { color:#919dad; font-size:11px; }
+.curso-flecha { margin-left:auto; width:16px; color:#9aa6b5; transition:transform .15s; }
+.abierto .curso-flecha { transform:rotate(180deg); }
+.curso-contenido { padding:0 16px 16px; border-top:1px solid #edf0f4; }
+.curso-contenido .nueva-eval { border-top:0; padding-top:10px; }
+.curso-contenido .nueva-eval .campo-input { flex:1; min-width:130px; }
+.alumnos-bloque { margin-top:22px; padding-top:18px; border-top:1px solid #edf0f4; }
